@@ -11,7 +11,7 @@ Design: https://lucid.app/lucidchart/6330a386-4d09-4764-83df-8f9ae152d38d/edit?i
 TOKEN = '5100503329:AAEd2hcnal5qbvYL0BvnzCEEL-yTJebJfY0'
 botusername = 'JioOrganizerBot'
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-JIO, CREATE_EVENT, EDIT_EVENT, ADD_DATES, ADD_LOCATIONS, DELETE_DATES, DELETE_LOCATIONS, EDIT_EVENT_LIST, SETUP_EVENT_POLL, DELETE_EVENT = range(10)
+JIO, CREATE_EVENT, EDIT_EVENT, ADD_DATES, ADD_LOCATIONS, DELETE_DATES, DELETE_LOCATIONS, EDIT_EVENT_LIST, SETUP_EVENT_POLL, DELETE_EVENT = ['J', 'CE', 'EE', 'AD' ,'AL', 'DD', 'DL', 'EEL', 'SEP', 'DE']
 
 def jio(update: Update, context: CallbackContext):
     '''
@@ -51,8 +51,20 @@ def button(update: Update, context: CallbackContext):
         case CREATE_EVENT:
             context.bot.send_message(chat_id=update.effective_chat.id, text="Send me your event name in the following format: /eventname \'eventname\'\ne.g. /eventname Dinner on the 15th")
 
-    logging.info(f"Transitioning state to : {new_state}")
+    logging.info(f"Transitioning state to: {new_state}")
     return query.data
+
+def createEvent(update: Update, context: CallbackContext):
+    '''
+    Update: /eventname command
+    Dispatch: EditEvent buttons
+    Backend: Create new empty event 'eventname'
+    '''
+    eventname = update.message.text.split(" ", 1)[1]
+    logging.info(f"message:{eventname}")
+    #TODO: CREATE IN BACKEND EVENT
+    
+    return EDIT_EVENT
 
 def cancel(update: Update, context: CallbackContext):
     '''
@@ -75,7 +87,8 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('jio', jio)],
         states={
-            JIO: [CallbackQueryHandler(button)]
+            JIO: [CallbackQueryHandler(button)],
+            CREATE_EVENT: [CommandHandler('eventname', createEvent)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
