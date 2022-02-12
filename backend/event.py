@@ -12,27 +12,27 @@ class Event:
     def addDate(self, date) -> None:
         try:
             bisect.insort(self.dates, date)
-            logging.info(f"Successfuly added \'{date}\' to \'{eventname}\'")
+            logging.info(f"Successfuly added \'{date}\' to \'{self.eventname}\'")
         except:
-            logging.error(f"Failed to add \'{date}\' to \'{eventname}\'")
+            logging.error(f"Failed to add \'{date}\' to \'{self.eventname}\'")
 
     def addLocation(self, location) -> None:
         try:
             bisect.insort(self.locations, location)
-            logging.info(f"Successfuly added \'{location}\' to \'{eventname}\'")
+            logging.info(f"Successfuly added \'{location}\' to \'{self.eventname}\'")
         except:
-            logging.error(f"Failed to add \'{location}\' to \'{eventname}\'")
+            logging.error(f"Failed to add \'{location}\' to \'{self.eventname}\'")
 
     def deleteDate(self, index) -> None:
         try:
             del self.dates[index]
-            logging.info(f"Successfuly deleted \'{dates[index]}\' from \'{eventname}\'")
+            logging.info(f"Successfuly deleted \'{self.dates[index]}\' from \'{self.eventname}\'")
         except:
-            logging.error(f"Failed to delete \'{dates[index]}\' from \'{eventname}\'")
+            logging.error(f"Failed to delete \'{self.dates[index]}\' from \'{self.eventname}\'")
 
     def deleteLocation(self, index) -> None:
         try:
             del self.locations[index]
-            logging.info(f"Successfuly deleted \'{location[index]}\' from \'{eventname}\'")
+            logging.info(f"Successfuly deleted \'{self.location[index]}\' from \'{self.eventname}\'")
         except:
-            logging.error(f"Failed to delete \'{location[index]}\' from \'{eventname}\'")
+            logging.error(f"Failed to delete \'{self.location[index]}\' from \'{self.eventname}\'")
