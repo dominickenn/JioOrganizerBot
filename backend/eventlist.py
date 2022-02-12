@@ -1,4 +1,4 @@
-from event import Event
+from backend.event import Event
 import logging
 
 class EventList:
@@ -11,9 +11,9 @@ class EventList:
         try:
             self.events.append(Event(eventname))
             self.eventNames.append(eventname)
-            logging.info(f"Successfuly created \'{eventname}\'")
+            logging.info(f"Successfuly created event \'{eventname}\'")
         except:
-            logging.error(f"Failed to create \'{eventname}\'")
+            logging.error(f"Failed to create event \'{eventname}\'")
 
     def getEventList(self) -> list:
         try:
@@ -34,9 +34,9 @@ class EventList:
         try:
             del self.events[index]
             del self.eventNames[index]
-            logging.info(f"Successfuly deleted \'{self.eventNames[index]}\'")
+            logging.info(f"Successfuly deleted event \'{self.eventNames[index]}\'")
         except:
-            logging.error(f"Failed to delete {self.eventNames[index]}")
+            logging.error(f"Failed to delete event {self.eventNames[index]}")
 
     def addDateToEvent(self, event_index, date) -> None:
         self.events[event_index].addDate(date)

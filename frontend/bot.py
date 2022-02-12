@@ -11,10 +11,11 @@ Design: https://lucid.app/lucidchart/6330a386-4d09-4764-83df-8f9ae152d38d/edit?i
 
 class Bot:
 
-    def __init__(self, TOKEN) -> None:
+    def __init__(self, TOKEN, eventlist) -> None:
         self.TOKEN = TOKEN
         self.JIO, self.CREATE_EVENT, self.EDIT_EVENT, self.ADD_DATES, self.ADD_LOCATIONS, self.DELETE_DATES, self.DELETE_LOCATIONS, self.EDIT_EVENT_LIST, self.SETUP_EVENT_POLL, self.DELETE_EVENT = ['J', 'CE', 'EE', 'AD' ,'AL', 'DD', 'DL', 'EEL', 'SEP', 'DE']
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        self.EventList = eventlist
 
     def jio(self, update: Update, context: CallbackContext) -> str:
         '''
@@ -66,7 +67,7 @@ class Bot:
         eventname = update.message.text.split(" ", 1)[1]
         logging.info(f"Received event name:{eventname}")
         #TODO: CREATE IN BACKEND EVENT
-        
+        self.EventList.createEvent(eventname)
         return self.EDIT_EVENT
 
     def cancel(self, update: Update, context: CallbackContext) -> None:
