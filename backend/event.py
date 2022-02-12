@@ -9,6 +9,12 @@ class Event:
         self.dates = []
         self.locations = []
 
+    def getDates(self) -> list:
+        return self.dates
+
+    def getLocations(self) -> list:
+        return self.locations
+
     def addDate(self, date) -> None:
         try:
             bisect.insort(self.dates, date)
