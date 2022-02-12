@@ -1,4 +1,5 @@
 from distutils.cmd import Command
+from tokenize import String
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, CommandHandler, ConversationHandler
 import logging
@@ -10,17 +11,17 @@ Design: https://lucid.app/lucidchart/6330a386-4d09-4764-83df-8f9ae152d38d/edit?i
 
 class Bot:
 
-    def __init__(self, TOKEN):
+    def __init__(self, TOKEN) -> None:
         self.TOKEN = TOKEN
         self.JIO, self.CREATE_EVENT, self.EDIT_EVENT, self.ADD_DATES, self.ADD_LOCATIONS, self.DELETE_DATES, self.DELETE_LOCATIONS, self.EDIT_EVENT_LIST, self.SETUP_EVENT_POLL, self.DELETE_EVENT = ['J', 'CE', 'EE', 'AD' ,'AL', 'DD', 'DL', 'EEL', 'SEP', 'DE']
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-    def jio(self, update: Update, context: CallbackContext):
+    def jio(self, update: Update, context: CallbackContext) -> str:
         '''
         Update: /jio command
         Dispatch: Send buttons for JioOrganizerBot main actions
         '''
-        logging.info(f"received message: {update.message.text}")
+        logging.info(f"Received message: {update.message.text}")
         keyboard = [
             [
                 InlineKeyboardButton("Create Event", callback_data=self.CREATE_EVENT),
@@ -33,10 +34,10 @@ class Bot:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_message(chat_id=update.effective_chat.id, text='Hi! I am your local jio bot! \nPress any button below to start!', reply_markup=reply_markup)
-        logging.info("dispatching JioOrganizerBot main action buttons")
+        logging.info("Dispatching JioOrganizerBot main action buttons")
         return self.JIO
 
-    def button(self, update: Update, context: CallbackContext):
+    def button(self, update: Update, context: CallbackContext) -> str:
         '''
         Update: Button press
         Dispatch: Send relevant message/buttons; Update interal state
@@ -46,7 +47,7 @@ class Bot:
         query = update.callback_query
         query.answer()
         new_state = query.data
-        logging.info(f"received button press: {new_state}")
+        logging.info(f"Received button press: {new_state}")
         
         # Add new case for each button
         match new_state:
@@ -56,7 +57,7 @@ class Bot:
         logging.info(f"Transitioning state to: {new_state}")
         return query.data
 
-    def createEvent(self, update: Update, context: CallbackContext):
+    def createEvent(self, update: Update, context: CallbackContext) -> str:
         '''
         Update: /eventname command
         Dispatch: EditEvent buttons
@@ -68,7 +69,7 @@ class Bot:
         
         return self.EDIT_EVENT
 
-    def cancel(self, update: Update, context: CallbackContext):
+    def cancel(self, update: Update, context: CallbackContext) -> None:
         '''
         Update: 'cancel' commnand / unrecognized input
         Dispatch: text - "Input not recognized, please /jio to start again!"
@@ -76,7 +77,7 @@ class Bot:
         logging.info(f"received message: {update.message.text}")
         context.bot.send_message(chat_id=update.effective_chat.id, text="Input not recognized, please /jio to start again!")
 
-    def start(self):
+    def start(self) -> None:
         '''
         Starts the bot
         -   Create updater with bot's token [Updater receives updates from bot]
