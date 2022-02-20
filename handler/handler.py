@@ -2,6 +2,7 @@ from logger import Logger
 from handler.handlerstates import States as states
 from frontend.dispatcher import Dispatcher
 from backend.eventmanager import EventManager
+from handler.sessionmanager import SessionManager
 from telegram import Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler, ConversationHandler
 
@@ -18,13 +19,7 @@ class Handler:
         )
         self.dispatcher = Dispatcher();
         self.eventManager = EventManager();
-        '''
-        TODO edit event session manager
-        Contain dictionary of what event is currently being edited by who.
-        'chat_id' : 'event_index'
-        event_index = -1 for no status
-        '''
-
+        self.sessionManager = SessionManager();
 
     def getHandler(self) -> ConversationHandler:
         return self.handler
@@ -33,10 +28,12 @@ class Handler:
         '''
         Update: /jio command
         Dispatch: Entry point inline keyboard
+        Session: Add chat_id/reset session
         '''
         chat_id = update.effective_chat.id
         Logger.logMessageReceived(f"{update.message.text}", chat_id)
         self.dispatcher.sendEntryPointInlineKeyboard(update, context, chat_id)
+        self.sessionManager.addSession(chat_id)
         return states.ENTRY_POINT
 
     def buttonHandling(self, update: Update, context: CallbackContext) -> str:
@@ -66,15 +63,18 @@ class Handler:
         Update: /eventname "eventname"
         Dispatch: EditEvent buttons
         Backend: Create new empty event 'eventname'
+        Session: Edit chat_id session to latest event index
         '''
         eventname = update.message.text.split(" ", 1)[1]
         chat_id = update.effective_chat.id
         Logger.logMessageReceived(f"Received event name {eventname}", chat_id)
         self.eventManager.createEvent(chat_id, eventname)
         self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, eventname)
+        self.sessionManager.editSessionEventID(self.eventManager.getLatestEventIndex(chat_id))
         return states.EDIT_EVENT
 
 
     def cancelCommandHandling(self, update: Update, context: CallbackContext) -> None:
-        Logger.logMessageReceived(f"{update.messsage.text}", update.message.chat.id)
-        self.dispatcher.sendInputNotRecognized(update, context, update.effective_chat.id)
+        chat_id = update.message.chat.id
+        Logger.logMessageReceived(f"{update.messsage.text}", chat_id)
+        self.dispatcher.sendInputNotRecognized(update, context, chat_id)

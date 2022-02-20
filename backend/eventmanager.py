@@ -50,3 +50,6 @@ class EventManager:
     def deleteLocationFromEvent(self, chat_id: str, event_index: int, location: str) -> None:
         self.events[chat_id][event_index].deleteDate(location)
         Logger.logSuccessfulOperation(f"Successfuly deleted location \'{location}\' from event \'{self.eventNames[event_index]}\' for \'{chat_id}\'")
+
+    def getLatestEventIndex(self, chat_id: str) -> int:
+        return len(self.events[chat_id]) - 1
