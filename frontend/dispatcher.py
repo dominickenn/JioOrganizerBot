@@ -18,14 +18,14 @@ class Dispatcher:
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_message(
-            chat_id=chat_id, 
+            chat_id=chat_id,
             text='Hi! I am your local jio bot! \nPress any button below to start!', 
             reply_markup=reply_markup
         )
         Logger.logMessageDispatch("Entry-point inline keyboard", chat_id)
 
-    def sendEventNameRequest(self, update: Update, context: CallbackContext, chat_id: str,) -> None:
-        context.bot.send_message(chat_id=chat_id, text="Send me your event name in the following format: /eventname \'eventname\'\ne.g. /eventname Dinner on the 15th")
+    def sendEventNameRequest(self, update: Update, context: CallbackContext, chat_id: str, message_id: str) -> None:
+        context.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text="Send me your event name in the following format: /eventname \'eventname\'\ne.g. /eventname Dinner on the 15th")
         Logger.logMessageDispatch("Event name request for create event", chat_id)
 
     def sendEditEventInlineKeyboard(self, update: Update, context: CallbackContext, chat_id: str, event_name: str) -> None:
@@ -44,8 +44,8 @@ class Dispatcher:
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, 
+        context.bot.edit_message_text(
+            chat_id=chat_id, 
             text=f'{event_name}', 
             reply_markup=reply_markup
         )

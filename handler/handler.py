@@ -48,13 +48,19 @@ class Handler:
         query.answer()
         new_state = query.data
         chat_id = update.effective_chat.id
+        message_id = update.callback_query.message.message_id
         Logger.buttonPressReceived(new_state, chat_id)
+        self.sessionManager.setInlineKeyboardMessageID(chat_id, message_id)
 
         # Handling of button presses based on transition to new state
         match new_state:
             case states.CREATE_EVENT:
-                self.dispatcher.sendEventNameRequest(update, context, chat_id)
+                self.dispatcher.sendEventNameRequest(update, context, chat_id, message_id)
                 #TODO add edit_event button handling (ADD DATE, ADD LOCATION, DELETE DATE, DELETE LOCATION, DONE, CREATE POLL
+                #https://stackoverflow.com/questions/55201953/telegram-bot-api-edit-inlinekeyboard-with-python-telegram-bot-not-working
+            case states.ADD_DATES:
+                pass
+                
 
         return new_state
 
@@ -67,10 +73,11 @@ class Handler:
         '''
         eventname = update.message.text.split(" ", 1)[1]
         chat_id = update.effective_chat.id
+        message_id = update.callback_query.message.message_id
         Logger.logMessageReceived(f"Received event name {eventname}", chat_id)
         self.eventManager.createEvent(chat_id, eventname)
-        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, eventname)
-        self.sessionManager.editSessionEventID(self.eventManager.getLatestEventIndex(chat_id))
+        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, eventname)
+        self.sessionManager.setSessionEventID(self.eventManager.getLatestEventIndex(chat_id))
         return states.EDIT_EVENT
 
 
