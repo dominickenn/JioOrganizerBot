@@ -18,5 +18,10 @@ class Logger:
         logging.info(f"Button pressed: \'{button_message}\' from \'{chat_id}\'")
 
     @staticmethod
-    def logSuccessfulOperation(message: str):
+    def logSuccessfulOperation(message: str) -> None:
         logging.info(f"Successfully {message}")
+    
+    @staticmethod
+
+    def logMessageDeletion(message: str, chat_id: str) -> None:
+        logging.info(f"Deleted message: \'{message}\' from \'{chat_id}\'")

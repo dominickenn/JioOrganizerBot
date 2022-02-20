@@ -55,6 +55,7 @@ class Dispatcher:
 
     def deleteLatestUserMessage(self, update: Update, context: CallbackContext, chat_id: str, message_id: str):
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+        Logger.logMessageDeletion(update.message.text, chat_id)
 
     def sendInputNotRecognized(self, update: Update, context: CallbackContext, chat_id: str) -> None:
         context.bot.send_message(chat_id=chat_id, text="Input not recognized, please /jio to start again!")

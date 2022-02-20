@@ -70,14 +70,18 @@ class Handler:
         Dispatch: EditEvent buttons
         Backend: Create new empty event 'eventname'
         Session: Edit chat_id session to latest event index
-        '''
-        #TODO check if at least one space exists, else return states.CREATE_EVENT
-        eventname = update.message.text.split(" ", 1)[1]
+        '''        
+        eventname_array = update.message.text.split(" ", 1)
         chat_id = update.effective_chat.id
+        message_id = self.sessionManager.getInlineKeyboardMessageID(chat_id)
+        if len(eventname_array) < 2:
+            self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+            return states.CREATE_EVENT
+        eventname = eventname_array[1]
         Logger.logMessageReceived(f"Received event name {eventname}", chat_id)
         self.eventManager.createEvent(chat_id, eventname)
         self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
-        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, self.sessionManager.getInlineKeyboardMessageID(chat_id), eventname)
+        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, eventname)
         self.sessionManager.setSessionEventID(chat_id, self.eventManager.getLatestEventIndex(chat_id))
         return states.EDIT_EVENT
 
