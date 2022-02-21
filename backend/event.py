@@ -28,3 +28,13 @@ class Event:
 
     def deleteLocation(self, index: int) -> None:
         del self.locations[index]
+    
+    def stringify(self) -> str:
+        result = f"<b>Event:</b>{self.eventname}"
+        result += "\n<b>Dates:</b>"
+        for date in self.dates:
+            result += f"       {date}\n"
+        result += "<b>Locations:</b>" 
+        for location in self.locations:
+            result += f"           {location}\n"
+        return result
