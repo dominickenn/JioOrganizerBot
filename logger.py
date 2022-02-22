@@ -22,6 +22,5 @@ class Logger:
         logging.info(f"Successfully {message}")
     
     @staticmethod
-
     def logMessageDeletion(message: str, chat_id: str) -> None:
         logging.info(f"Deleted message: \'{message}\' from \'{chat_id}\'")

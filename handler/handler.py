@@ -13,7 +13,10 @@ class Handler:
             states={
                 states.ENTRY_POINT: [CallbackQueryHandler(self.buttonHandling)],
                 states.CREATE_EVENT: [CommandHandler('eventname', self.createEventHandling)],
-                states.EDIT_EVENT: [CallbackQueryHandler(self.buttonHandling)],
+                #TODO add more commands for EDIT_EVENT
+                states.EDIT_EVENT: [
+                    CallbackQueryHandler(self.buttonHandling),
+                    CommandHandler('adddate', self.editEventHandling)],
             },
             fallbacks=[CommandHandler('cancel', self.cancelCommandHandling)],
         )
@@ -32,6 +35,7 @@ class Handler:
         '''
         chat_id = update.effective_chat.id
         Logger.logMessageReceived(f"{update.message.text}", chat_id)
+        self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
         self.dispatcher.sendEntryPointInlineKeyboard(update, context, chat_id)
         self.sessionManager.addSession(chat_id)
         return states.ENTRY_POINT
@@ -56,11 +60,7 @@ class Handler:
         match new_state:
             case states.CREATE_EVENT:
                 self.dispatcher.sendEventNameRequest(update, context, chat_id, message_id)
-                #TODO add edit_event button handling (ADD DATE, ADD LOCATION, DELETE DATE, DELETE LOCATION, DONE, CREATE POLL
-                #https://stackoverflow.com/questions/55201953/telegram-bot-api-edit-inlinekeyboard-with-python-telegram-bot-not-working
-            case states.ADD_DATES:
-                pass
-                
+            #TODO EDIT_EVENT DONE_BUTTON and CREATE_POLL           
 
         return new_state
 
@@ -78,13 +78,39 @@ class Handler:
             self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
             return states.CREATE_EVENT
         eventname = eventname_array[1]
-        Logger.logMessageReceived(f"Received event name {eventname}", chat_id)
+        Logger.logMessageReceived(update.message.text, chat_id)
         self.eventManager.createEvent(chat_id, eventname)
         self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
-        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, eventname)
-        self.sessionManager.setSessionEventID(chat_id, self.eventManager.getLatestEventIndex(chat_id))
+        event_id = self.eventManager.getLatestEventIndex(chat_id)
+        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
+        self.sessionManager.setSessionEventID(chat_id, event_id)
         return states.EDIT_EVENT
 
+    #TODO Complete method
+    def editEventHandling(self, update: Update, context: CallbackContext) -> str:
+        '''
+        Update: /adddate "date" OR /addlocation "location" OR /deletedate OR /deletelocation
+        Dispatch: EditEvent buttons and New Event Updates
+        Backend: AddDate/AddLocation/DeleteDate/DeleteLocation
+        '''
+        message_array = update.message.text.split(" ", 1)
+        chat_id = update.effective_chat.id
+        message_id = self.sessionManager.getInlineKeyboardMessageID(chat_id)
+        if len(message_array) < 2:
+            self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+            return states.EDIT_EVENT
+        command = message_array[0]
+        message = message_array[1]
+        event_id = self.sessionManager.getSessionEventID(chat_id)
+        Logger.logMessageReceived(update.message.text, chat_id)
+        match command:
+            case "/adddate":
+                self.eventManager.addDateToEvent(chat_id, event_id, message)
+                Logger.logSuccessfulOperation(f"added date \'{message}\' to event_id \'{event_id}\' of chat_id \'{chat_id}\'")
+        #TODO /addlocation
+        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
+        self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+        return states.EDIT_EVENT
 
     def cancelCommandHandling(self, update: Update, context: CallbackContext) -> None:
         chat_id = update.message.chat.id

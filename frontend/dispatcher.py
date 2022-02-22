@@ -28,16 +28,8 @@ class Dispatcher:
         context.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text="Send me your event name in the following format: /eventname \'eventname\'\ne.g. /eventname Dinner on the 15th")
         Logger.logMessageDispatch("Event name request for create event", chat_id)
 
-    def sendEditEventInlineKeyboard(self, update: Update, context: CallbackContext, chat_id: str, message_id: str, event_name: str) -> None:
+    def sendEditEventInlineKeyboard(self, update: Update, context: CallbackContext, chat_id: str, message_id: str, event: str) -> None:
         keyboard = [
-            [
-                InlineKeyboardButton("Add Date", callback_data=states.ADD_DATES),
-                InlineKeyboardButton("Add Location", callback_data=states.ADD_LOCATIONS),
-            ],
-            [
-                InlineKeyboardButton("Delete Date", callback_data=states.DELETE_DATES),
-                InlineKeyboardButton("Delete Location", callback_data=states.DELETE_LOCATIONS),
-            ],
             [
                 InlineKeyboardButton("Done", callback_data=-1),
                 InlineKeyboardButton("Create Poll", callback_data=-1),
@@ -47,7 +39,7 @@ class Dispatcher:
         context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
-            text=f'<b>Event</b>: {event_name}', 
+            text=f"{event}\n\n<b>To edit the event, use the follow commands:</b>\n    - /adddate \'date\'\n    - /addlocation \'location\'\n    - /deletedate \'date_index\'\n    - /deletelocation \'location_index\'", 
             reply_markup=reply_markup,
             parse_mode='HTML'
         )
