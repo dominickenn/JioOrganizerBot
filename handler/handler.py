@@ -16,7 +16,10 @@ class Handler:
                 #TODO add more commands for EDIT_EVENT
                 states.EDIT_EVENT: [
                     CallbackQueryHandler(self.buttonHandling),
-                    CommandHandler('adddate', self.editEventHandling)],
+                    CommandHandler('adddate', self.editEventHandling),
+                    CommandHandler('addlocation', self.editEventHandling),
+                    CommandHandler('deletedate', self.editEventHandling),
+                    CommandHandler('deletelocation', self.editEventHandling)],
             },
             fallbacks=[CommandHandler('cancel', self.cancelCommandHandling)],
         )
@@ -86,7 +89,6 @@ class Handler:
         self.sessionManager.setSessionEventID(chat_id, event_id)
         return states.EDIT_EVENT
 
-    #TODO Complete method
     def editEventHandling(self, update: Update, context: CallbackContext) -> str:
         '''
         Update: /adddate "date" OR /addlocation "location" OR /deletedate OR /deletelocation
@@ -106,8 +108,12 @@ class Handler:
         match command:
             case "/adddate":
                 self.eventManager.addDateToEvent(chat_id, event_id, message)
-                Logger.logSuccessfulOperation(f"added date \'{message}\' to event_id \'{event_id}\' of chat_id \'{chat_id}\'")
-        #TODO /addlocation
+            case "/addlocation":
+                self.eventManager.addLocationToEvent(chat_id, event_id, message)
+            case "/deletedate":
+                self.eventManager.deleteDateFromEvent(chat_id, event_id, message)
+            case "/deletelocation":
+                self.eventManager.deleteLocationFromEvent(chat_id, event_id, message)
         self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
         self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
         return states.EDIT_EVENT

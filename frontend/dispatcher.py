@@ -39,7 +39,7 @@ class Dispatcher:
         context.bot.edit_message_text(
             chat_id=chat_id,
             message_id=message_id,
-            text=f"{event}\n\n<b>To edit the event, use the follow commands:</b>\n    - /adddate \'date\'\n    - /addlocation \'location\'\n    - /deletedate \'date_index\'\n    - /deletelocation \'location_index\'", 
+            text=f"{event}\n\n<b>To edit the event, use the follow commands:</b>\n    - /adddate \'date\'\n    - /addlocation \'location\'\n    - /deletedate \'date_index\'\n    - /deletelocation \'location_index\'\n      <i>Indices start from 1.</i>", 
             reply_markup=reply_markup,
             parse_mode='HTML'
         )

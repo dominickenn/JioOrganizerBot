@@ -34,16 +34,16 @@ class EventManager:
         Logger.logSuccessfulOperation(f"added date \'{date}\' to event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
     def addLocationToEvent(self, chat_id: str, event_index: int, location: str) -> None:
-        self.events[chat_id][event_index].addDate(location)
+        self.events[chat_id][event_index].addLocation(location)
         Logger.logSuccessfulOperation(f"added location \'{location}\' to event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
-    def deleteDateFromEvent(self, chat_id: str, event_index: int, date: str) -> None:
-        self.events[chat_id][event_index].deleteDate(date)
-        Logger.logSuccessfulOperation(f"Successfuly deleted date \'{date}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
+    def deleteDateFromEvent(self, chat_id: str, event_index: int, index: int) -> None:
+        self.events[chat_id][event_index].deleteDate(int(index) - 1)
+        Logger.logSuccessfulOperation(f"deleted date index \'{index}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
-    def deleteLocationFromEvent(self, chat_id: str, event_index: int, location: str) -> None:
-        self.events[chat_id][event_index].deleteDate(location)
-        Logger.logSuccessfulOperation(f"Successfuly deleted location \'{location}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
+    def deleteLocationFromEvent(self, chat_id: str, event_index: int, index: int) -> None:
+        self.events[chat_id][event_index].deleteLocation(int(index) - 1)
+        Logger.logSuccessfulOperation(f"deleted location index \'{index}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
     def getLatestEventIndex(self, chat_id: str) -> int:
         return len(self.events[chat_id]) - 1
