@@ -13,7 +13,6 @@ class Handler:
             states={
                 states.ENTRY_POINT: [CallbackQueryHandler(self.buttonHandling)],
                 states.CREATE_EVENT: [CommandHandler('eventname', self.createEventHandling)],
-                #TODO add more commands for EDIT_EVENT
                 states.EDIT_EVENT: [
                     CallbackQueryHandler(self.buttonHandling),
                     CommandHandler('adddate', self.editEventHandling),
@@ -38,7 +37,7 @@ class Handler:
         '''
         chat_id = update.effective_chat.id
         Logger.logMessageReceived(f"{update.message.text}", chat_id)
-        self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+        self.dispatcher.deleteLatestUserMessage(update, context, chat_id)
         self.dispatcher.sendEntryPointInlineKeyboard(update, context, chat_id)
         self.sessionManager.addSession(chat_id)
         return states.ENTRY_POINT
@@ -63,7 +62,10 @@ class Handler:
         match new_state:
             case states.CREATE_EVENT:
                 self.dispatcher.sendEventNameRequest(update, context, chat_id, message_id)
-            #TODO EDIT_EVENT DONE_BUTTON and CREATE_POLL           
+            case states.DONE:
+                self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
+                return ConversationHandler.END
+            #TODO CREATE_POLL           
 
         return new_state
 
@@ -78,12 +80,12 @@ class Handler:
         chat_id = update.effective_chat.id
         message_id = self.sessionManager.getInlineKeyboardMessageID(chat_id)
         if len(eventname_array) < 2:
-            self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+            self.dispatcher.deleteLatestUserMessage(update, context, chat_id)
             return states.CREATE_EVENT
         eventname = eventname_array[1]
         Logger.logMessageReceived(update.message.text, chat_id)
         self.eventManager.createEvent(chat_id, eventname)
-        self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+        self.dispatcher.deleteLatestUserMessage(update, context, chat_id)
         event_id = self.eventManager.getLatestEventIndex(chat_id)
         self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
         self.sessionManager.setSessionEventID(chat_id, event_id)
@@ -99,7 +101,7 @@ class Handler:
         chat_id = update.effective_chat.id
         message_id = self.sessionManager.getInlineKeyboardMessageID(chat_id)
         if len(message_array) < 2:
-            self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+            self.dispatcher.deleteLatestUserMessage(update, context, chat_id)
             return states.EDIT_EVENT
         command = message_array[0]
         message = message_array[1]
@@ -115,7 +117,7 @@ class Handler:
             case "/deletelocation":
                 self.eventManager.deleteLocationFromEvent(chat_id, event_id, message)
         self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
-        self.dispatcher.deleteLatestUserMessage(update, context, chat_id, update.message.message_id)
+        self.dispatcher.deleteLatestUserMessage(update, context, chat_id)
         return states.EDIT_EVENT
 
     def cancelCommandHandling(self, update: Update, context: CallbackContext) -> None:

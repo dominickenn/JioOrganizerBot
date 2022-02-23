@@ -24,3 +24,7 @@ class Logger:
     @staticmethod
     def logMessageDeletion(message: str, chat_id: str) -> None:
         logging.info(f"Deleted message: \'{message}\' from \'{chat_id}\'")
+
+    @staticmethod
+    def logBotConversationEnd(chat_id: str) -> None:
+        logging.info(f"Ending conversation for \'{chat_id}\'")

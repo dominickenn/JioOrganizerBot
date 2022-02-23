@@ -31,7 +31,7 @@ class Dispatcher:
     def sendEditEventInlineKeyboard(self, update: Update, context: CallbackContext, chat_id: str, message_id: str, event: str) -> None:
         keyboard = [
             [
-                InlineKeyboardButton("Done", callback_data=-1),
+                InlineKeyboardButton("Done", callback_data=states.DONE),
                 InlineKeyboardButton("Create Poll", callback_data=-1),
             ],
         ]
@@ -45,8 +45,12 @@ class Dispatcher:
         )
         Logger.logMessageDispatch("Edit-event inline keyboard", chat_id)
 
-    def deleteLatestUserMessage(self, update: Update, context: CallbackContext, chat_id: str, message_id: str):
-        context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+    def deleteLatestBotMessage(self, update: Update, context: CallbackContext, chat_id: str, message: str):
+        context.bot.delete_message(chat_id=chat_id, message_id=message)
+        Logger.logBotConversationEnd(chat_id)
+
+    def deleteLatestUserMessage(self, update: Update, context: CallbackContext, chat_id: str):
+        context.bot.delete_message(chat_id=chat_id, message_id=update.message.message_id)
         Logger.logMessageDeletion(update.message.text, chat_id)
 
     def sendInputNotRecognized(self, update: Update, context: CallbackContext, chat_id: str) -> None:
