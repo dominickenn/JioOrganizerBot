@@ -48,5 +48,8 @@ class EventManager:
     def getLatestEventIndex(self, chat_id: str) -> int:
         return len(self.events[chat_id]) - 1
 
-    def getEventString(self, chat_id: str, event_index: int):
+    def getEventString(self, chat_id: str, event_index: int) -> str:
         return self.events[chat_id][event_index].stringify()
+
+    def getEventInfo(self, chat_id: str, event_index: int) -> tuple:
+        return self.events[chat_id][event_index].getEventInfo()

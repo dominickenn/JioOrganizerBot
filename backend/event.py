@@ -11,11 +11,8 @@ class Event:
     def getEventName(self) -> str:
         return self.eventname
 
-    def getDates(self) -> list:
-        return self.dates
-
-    def getLocations(self) -> list:
-        return self.locations
+    def getEventInfo(self) -> tuple:
+        return self.eventname, self.dates, self.locations
 
     def addDate(self, date: str) -> None:
         #bisect.insort(self.dates, date)

@@ -4,7 +4,7 @@ from frontend.dispatcher import Dispatcher
 from backend.eventmanager import EventManager
 from handler.sessionmanager import SessionManager
 from telegram import Update
-from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler, ConversationHandler
+from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler, ConversationHandler, PollAnswerHandler
 
 class Handler:
     def __init__(self) -> None:
@@ -42,11 +42,11 @@ class Handler:
         self.sessionManager.addSession(chat_id)
         return states.ENTRY_POINT
 
+    #TODO Split button handling for different states
     def buttonHandling(self, update: Update, context: CallbackContext) -> str:
         '''
         Update: Button press
         Dispatch: Handled according to button press
-        State-Update: According to button press
         '''
         # CallbackQueries need to be answered, even if no notification to the user is needed
         # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
@@ -55,6 +55,7 @@ class Handler:
         new_state = query.data
         chat_id = update.effective_chat.id
         message_id = update.callback_query.message.message_id
+        event_index = self.sessionManager.getSessionEventID(chat_id)
         Logger.buttonPressReceived(new_state, chat_id)
         self.sessionManager.setInlineKeyboardMessageID(chat_id, message_id)
 
@@ -64,8 +65,12 @@ class Handler:
                 self.dispatcher.sendEventNameRequest(update, context, chat_id, message_id)
             case states.DONE:
                 self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
+                self.sessionManager.resetSession(chat_id)
                 return ConversationHandler.END
-            #TODO CREATE_POLL           
+            case states.POLLING:
+                self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
+                self.dispatcher.sendEventPoll(update, context, chat_id, *self.eventManager.getEventInfo(chat_id, event_index))
+                return ConversationHandler.END
 
         return new_state
 

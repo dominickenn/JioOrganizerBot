@@ -32,7 +32,7 @@ class Dispatcher:
         keyboard = [
             [
                 InlineKeyboardButton("Done", callback_data=states.DONE),
-                InlineKeyboardButton("Create Poll", callback_data=-1),
+                InlineKeyboardButton("Create Poll", callback_data=states.POLLING),
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -44,12 +44,25 @@ class Dispatcher:
             parse_mode='HTML'
         )
         Logger.logMessageDispatch("Edit-event inline keyboard", chat_id)
+    #TODO complete sendEventPoll method
+    def sendEventPoll(self, update: Update, context: CallbackContext, chat_id: str, event_name: str, event_dates: list, event_locations: list) -> None:
+        options = []
+        for date in event_dates:
+            for location in event_locations:
+                options.append(f"{location} on {date}")
+        message = context.bot.send_poll(
+            chat_id=chat_id,
+            question=f"Make your vote for {event_name}!",
+            options=options,
+            is_anonymous=False,
+            allows_multiple_answers=True,
+        )
 
-    def deleteLatestBotMessage(self, update: Update, context: CallbackContext, chat_id: str, message: str):
-        context.bot.delete_message(chat_id=chat_id, message_id=message)
+    def deleteLatestBotMessage(self, update: Update, context: CallbackContext, chat_id: str, message_id: str) -> None:
+        context.bot.delete_message(chat_id=chat_id, message_id=message_id)
         Logger.logBotConversationEnd(chat_id)
 
-    def deleteLatestUserMessage(self, update: Update, context: CallbackContext, chat_id: str):
+    def deleteLatestUserMessage(self, update: Update, context: CallbackContext, chat_id: str) -> None:
         context.bot.delete_message(chat_id=chat_id, message_id=update.message.message_id)
         Logger.logMessageDeletion(update.message.text, chat_id)
 

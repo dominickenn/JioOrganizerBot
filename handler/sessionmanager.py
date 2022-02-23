@@ -17,9 +17,6 @@ class SessionManager:
     def setSessionEventID(self, chat_id: str, event_id: int) -> None:
         self.sessions[chat_id][0] = event_id
 
-    def resetSessionEventID(self, chat_id: str) -> None:
-        self.sessions[chat_id][0] = -1
-
     def getInlineKeyboardMessageID(self, chat_id: str) -> str:
         return self.sessions[chat_id][1]
 
@@ -27,4 +24,8 @@ class SessionManager:
         self.sessions[chat_id][1] = message_id
 
     def resetInlineKeyboardMessageID(self, chat_id: str) -> None:
+        self.sessions[chat_id][1] = -1
+
+    def resetSession(self, chat_id: str) -> None:
+        self.sessions[chat_id][0] = -1
         self.sessions[chat_id][1] = -1
