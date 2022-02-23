@@ -44,13 +44,13 @@ class Dispatcher:
             parse_mode='HTML'
         )
         Logger.logMessageDispatch("Edit-event inline keyboard", chat_id)
-    #TODO complete sendEventPoll method
+    
     def sendEventPoll(self, update: Update, context: CallbackContext, chat_id: str, event_name: str, event_dates: list, event_locations: list) -> None:
         options = []
         for date in event_dates:
             for location in event_locations:
                 options.append(f"{location} on {date}")
-        message = context.bot.send_poll(
+        context.bot.send_poll(
             chat_id=chat_id,
             question=f"Make your vote for {event_name}!",
             options=options,
