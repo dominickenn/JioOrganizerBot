@@ -11,10 +11,11 @@ class Handler:
         self.handler = ConversationHandler(
             entry_points=[CommandHandler('jio', self.entryPointHandling)],
             states={
-                states.ENTRY_POINT: [CallbackQueryHandler(self.buttonHandling)],
+                states.ENTRY_POINT: [CallbackQueryHandler(self. entryPointButtonHandling)],
                 states.CREATE_EVENT: [CommandHandler('eventname', self.createEventHandling)],
+                states.EDIT_EVENT_LIST:[CallbackQueryHandler(self. editEventListButtonHandling)],
                 states.EDIT_EVENT: [
-                    CallbackQueryHandler(self.buttonHandling),
+                    CallbackQueryHandler(self.editEventButtonHandling),
                     CommandHandler('adddate', self.editEventHandling),
                     CommandHandler('addlocation', self.editEventHandling),
                     CommandHandler('deletedate', self.editEventHandling),
@@ -42,10 +43,9 @@ class Handler:
         self.sessionManager.addSession(chat_id)
         return states.ENTRY_POINT
 
-    #TODO Split button handling for different states
-    def buttonHandling(self, update: Update, context: CallbackContext) -> str:
+    def entryPointButtonHandling(self, update: Update, context: CallbackContext) -> str:
         '''
-        Update: Button press
+        Update: Entry-point button press
         Dispatch: Handled according to button press
         '''
         # CallbackQueries need to be answered, even if no notification to the user is needed
@@ -55,7 +55,6 @@ class Handler:
         new_state = query.data
         chat_id = update.effective_chat.id
         message_id = update.callback_query.message.message_id
-        event_index = self.sessionManager.getSessionEventID(chat_id)
         Logger.buttonPressReceived(new_state, chat_id)
         self.sessionManager.setInlineKeyboardMessageID(chat_id, message_id)
 
@@ -63,15 +62,8 @@ class Handler:
         match new_state:
             case states.CREATE_EVENT:
                 self.dispatcher.sendEventNameRequest(update, context, chat_id, message_id)
-            case states.DONE:
-                self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
-                self.sessionManager.resetSession(chat_id)
-                return ConversationHandler.END
-            case states.POLLING:
-                self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
-                self.dispatcher.sendEventPoll(update, context, chat_id, *self.eventManager.getEventInfo(chat_id, event_index))
-                return ConversationHandler.END
-
+            case states.EDIT_EVENT_LIST:
+                self.dispatcher.sendEventList(update, context, chat_id, message_id, self.eventManager.getFiveLatestEventList(chat_id))
         return new_state
 
     def createEventHandling(self, update: Update, context: CallbackContext) -> str:
@@ -94,6 +86,24 @@ class Handler:
         event_id = self.eventManager.getLatestEventIndex(chat_id)
         self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
         self.sessionManager.setSessionEventID(chat_id, event_id)
+        return states.EDIT_EVENT
+
+    def editEventListButtonHandling(self, update: Update, context: CallbackContext) -> str:
+        '''
+        Update: Event button press
+        Dispatch: Handled according to button press
+        '''
+        # CallbackQueries need to be answered, even if no notification to the user is needed
+        # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+        query = update.callback_query
+        query.answer()
+        selected_event = int(query.data)
+        chat_id = update.effective_chat.id
+        message_id = update.callback_query.message.message_id
+        Logger.buttonPressReceived(selected_event, chat_id)
+        self.sessionManager.setInlineKeyboardMessageID(chat_id, message_id)
+        self.sessionManager.setSessionEventID(chat_id, selected_event)
+        self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, selected_event))
         return states.EDIT_EVENT
 
     def editEventHandling(self, update: Update, context: CallbackContext) -> str:
@@ -124,6 +134,32 @@ class Handler:
         self.dispatcher.sendEditEventInlineKeyboard(update, context, chat_id, message_id, self.eventManager.getEventString(chat_id, event_id))
         self.dispatcher.deleteLatestUserMessage(update, context, chat_id)
         return states.EDIT_EVENT
+
+    def editEventButtonHandling(self, update: Update, context: CallbackContext) -> str:
+            '''
+            Update: Edit event button press
+            Dispatch: Handled according to button press
+            '''
+            # CallbackQueries need to be answered, even if no notification to the user is needed
+            # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+            query = update.callback_query
+            query.answer()
+            new_state = query.data
+            chat_id = update.effective_chat.id
+            message_id = update.callback_query.message.message_id
+            event_index = self.sessionManager.getSessionEventID(chat_id)
+            Logger.buttonPressReceived(new_state, chat_id)
+            self.sessionManager.setInlineKeyboardMessageID(chat_id, message_id)
+
+            # Handling of button presses based on transition to new state
+            match new_state:
+                case states.DONE:
+                    self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
+                    self.sessionManager.resetSession(chat_id)
+                case states.POLLING:
+                    self.dispatcher.deleteLatestBotMessage(update, context, chat_id, message_id)
+                    self.dispatcher.sendEventPoll(update, context, chat_id, *self.eventManager.getEventInfo(chat_id, event_index))
+            return ConversationHandler.END
 
     def cancelCommandHandling(self, update: Update, context: CallbackContext) -> None:
         chat_id = update.message.chat.id

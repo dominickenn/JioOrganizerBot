@@ -23,6 +23,15 @@ class Bot:
         dispatcher = updater.dispatcher
 
         handler = Handler()
+        handler.eventManager.createEvent(-678200997, "Event 1")
+        handler.eventManager.createEvent(-678200997, "Event 2")
+        handler.eventManager.createEvent(-678200997, "Event 3")
+        handler.eventManager.createEvent(-678200997, "Event 4")
+        handler.eventManager.createEvent(-678200997, "Event 6")
+        handler.eventManager.createEvent(-678200997, "Event 7")
+        handler.eventManager.createEvent(-678200997, "Event 8")
+        handler.eventManager.createEvent(-678200997, "Event 9")
+        handler.eventManager.createEvent(-678200997, "Event 10")
         dispatcher.add_handler(handler.getHandler())
 
         #starts the bot

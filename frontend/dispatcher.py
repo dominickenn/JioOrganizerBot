@@ -50,13 +50,47 @@ class Dispatcher:
         for date in event_dates:
             for location in event_locations:
                 options.append(f"{location} on {date}")
-        context.bot.send_poll(
+        question = f"Make your vote for {event_name}!"
+        if len(options) == 0:
+            context.bot.send_message(
+                chat_id=chat_id
+                text="There must be at least 1 date and 1 location for a poll!"
+            )
+            Logger.logMessageDispatch(f"Insufficient options for poll", chat_id)
+        elif len(options) == 1:
+            question = f"Make your vote for {event_name}!\n{options[0]}"
+            options = ["Yes", "No", "Maybe"]
+            context.bot.send_poll(
+                chat_id=chat_id,
+                question=question
+                options=options,
+                is_anonymous=False,
+                allows_multiple_answers=True,
+            )
+            Logger.logMessageDispatch(f"Poll for {event_name}", chat_id)
+        else:
+            context.bot.send_poll(
+                chat_id=chat_id,
+                question=question
+                options=options,
+                is_anonymous=False,
+                allows_multiple_answers=True,
+            )
+            Logger.logMessageDispatch(f"Poll for {event_name}", chat_id)
+
+    def sendEventList(self, update: Update, context: CallbackContext, chat_id: str, message_id: str, event_list: list) -> None:
+        keyboard = []
+        for i in range(len(event_list)):
+            keyboard.append([InlineKeyboardButton(f"{event_list[i][0]}", callback_data=event_list[i][1])])
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        context.bot.edit_message_text(
             chat_id=chat_id,
-            question=f"Make your vote for {event_name}!",
-            options=options,
-            is_anonymous=False,
-            allows_multiple_answers=True,
+            message_id=message_id,
+            text=f"These are the latest 5 events!\nChoose an event to edit!", 
+            reply_markup=reply_markup,
+            parse_mode='HTML'
         )
+        Logger.logMessageDispatch("Latest 5 event list", chat_id)
 
     def deleteLatestBotMessage(self, update: Update, context: CallbackContext, chat_id: str, message_id: str) -> None:
         context.bot.delete_message(chat_id=chat_id, message_id=message_id)

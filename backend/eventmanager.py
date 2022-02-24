@@ -17,9 +17,12 @@ class EventManager:
         self.events[chat_id].append(Event(eventname))
         Logger.logSuccessfulOperation(f"created event \'{eventname}\' for \'{chat_id}\'")
 
-    def getEventList(self, chat_id: str) -> list:
+    def getFiveLatestEventList(self, chat_id: str) -> list:
+        if chat_id not in self.events.keys():
+            return []
         eventlist = self.events[chat_id]
-        eventnames = [event.getEventName() for event in eventlist]
+        n_events = len(eventlist)
+        eventnames = [(eventlist[i].getEventName(), i) for i in range(n_events - 5, n_events)]
         return eventnames
 
     def getEventName(self, chat_id: str, event_index: int) -> str:

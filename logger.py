@@ -11,7 +11,7 @@ class Logger:
 
     @staticmethod
     def logMessageDispatch(message: str, chat_id: str) -> None:
-        logging.info(f"Dispatching: \'{message}\' from \'{chat_id}\'")
+        logging.info(f"Dispatching: \'{message}\' to \'{chat_id}\'")
 
     @staticmethod
     def buttonPressReceived(button_message: str, chat_id: str) -> None:
