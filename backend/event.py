@@ -37,3 +37,6 @@ class Event:
         for location in self.locations:
             result += f"\n{location}"
         return result
+
+    def canCreatePoll(self) -> bool:
+        return len(self.dates) > 0 and len(self.locations) > 0

@@ -28,10 +28,6 @@ class EventManager:
     def getEventName(self, chat_id: str, event_index: int) -> str:
         return self.events[chat_id][event_index].getEventName()
 
-    def deleteEvent(self, chat_id: str, event_index: int) -> None:
-        del self.events[chat_id][event_index]
-        Logger.logSuccessfulOperation(f"deleted event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
-
     def addDateToEvent(self, chat_id: str, event_index: int, date: str) -> None:
         self.events[chat_id][event_index].addDate(date)
         Logger.logSuccessfulOperation(f"added date \'{date}\' to event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
@@ -41,12 +37,16 @@ class EventManager:
         Logger.logSuccessfulOperation(f"added location \'{location}\' to event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
     def deleteDateFromEvent(self, chat_id: str, event_index: int, index: int) -> None:
-        self.events[chat_id][event_index].deleteDate(int(index) - 1)
-        Logger.logSuccessfulOperation(f"deleted date index \'{index}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
+        index = int(index) - 1
+        if isinstance(index, int):
+            self.events[chat_id][event_index].deleteDate(index)
+            Logger.logSuccessfulOperation(f"deleted date index \'{index}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
     def deleteLocationFromEvent(self, chat_id: str, event_index: int, index: int) -> None:
-        self.events[chat_id][event_index].deleteLocation(int(index) - 1)
-        Logger.logSuccessfulOperation(f"deleted location index \'{index}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
+        index = int(index) - 1
+        if isinstance(index, int):
+            self.events[chat_id][event_index].deleteLocation(index)
+            Logger.logSuccessfulOperation(f"deleted location index \'{index}\' from event \'{self.getEventName(chat_id, event_index)}\' for \'{chat_id}\'")
 
     def getLatestEventIndex(self, chat_id: str) -> int:
         return len(self.events[chat_id]) - 1
@@ -56,3 +56,6 @@ class EventManager:
 
     def getEventInfo(self, chat_id: str, event_index: int) -> tuple:
         return self.events[chat_id][event_index].getEventInfo()
+
+    def canEventCreatePoll(self, chat_id: str, event_index: int) -> bool:
+        return self.events[chat_id][event_index].canCreatePoll()

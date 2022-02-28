@@ -1,7 +1,7 @@
 from frontend.bot import Bot
 
 def main():
-    TOKEN = '5100503329:AAEd2hcnal5qbvYL0BvnzCEEL-yTJebJfY0'
+    TOKEN = 'FILL IN WITH TOKEN ID FROM BOTFATHER'
     bot = Bot(TOKEN)
     bot.start()
 
